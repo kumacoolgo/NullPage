@@ -1,54 +1,54 @@
 # Web Text Board
 
-A minimal web-based temporary text board for pasting, editing, and saving plain text. Designed for single-user use with Redis persistence.
+一个极简的网页临时文本板，用于粘贴、编辑和保存纯文本。专为单用户设计，使用 Redis 持久化存储。
 
-## Features
+## 功能特点
 
-- Plain text only editor
-- Manual save (no auto-save)
-- Font size controls (A-, A+) and pinch-to-zoom on mobile
-- 7-day session persistence
-- Redis-backed persistence
-- Mobile-first responsive design
+- 纯文本编辑器
+- 手动保存（无自动保存）
+- 字体大小控制（A-/A+）和移动端双指缩放
+- 7 天会话保持
+- Redis 持久化存储
+- 移动端优先的响应式设计
 
-## Tech Stack
+## 技术栈
 
-- **Backend**: Python 3.12 + FastAPI
-- **Templates**: Jinja2
-- **Frontend**: Plain HTML + CSS + JavaScript (no frameworks)
-- **Database**: Redis
-- **Session**: Signed cookie (itsdangerous)
-- **Container**: Docker
+- **后端**: Python 3.12 + FastAPI
+- **模板**: Jinja2
+- **前端**: 纯 HTML + CSS + JavaScript（无框架）
+- **数据库**: Redis
+- **会话**: 签名 Cookie（itsdangerous）
+- **容器**: Docker
 
-## Environment Variables
+## 环境变量
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `EDIT_USER` | Yes | Username for login |
-| `EDIT_PASSWORD` | Yes | Password for login |
-| `REDIS_URL` | Yes | Redis connection URL (e.g., `redis://localhost:6379`) |
-| `SESSION_SECRET` | Yes | Secret key for signing session cookies |
+| 变量 | 必填 | 描述 |
+|------|------|------|
+| `EDIT_USER` | 是 | 登录用户名 |
+| `EDIT_PASSWORD` | 是 | 登录密码 |
+| `REDIS_URL` | 是 | Redis 连接地址（如 `redis://localhost:6379`） |
+| `SESSION_SECRET` | 是 | 会话 Cookie 签名密钥 |
 
-### Optional Variables
+### 可选变量
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SESSION_LIFETIME_DAYS` | 7 | Session cookie lifetime |
-| `DEFAULT_FONT_SIZE_PX` | 18 | Default editor font size |
-| `MIN_FONT_SIZE_PX` | 12 | Minimum font size |
-| `MAX_FONT_SIZE_PX` | 40 | Maximum font size |
+| 变量 | 默认值 | 描述 |
+|------|--------|------|
+| `SESSION_LIFETIME_DAYS` | 7 | 会话 Cookie 有效期 |
+| `DEFAULT_FONT_SIZE_PX` | 18 | 默认编辑器字体大小 |
+| `MIN_FONT_SIZE_PX` | 12 | 最小字体大小 |
+| `MAX_FONT_SIZE_PX` | 40 | 最大字体大小 |
 
-## Local Development
+## 本地开发
 
-### Prerequisites
+### 前置要求
 
 - Python 3.12
-- Redis server running
+- Redis 服务运行中
 
-### Setup
+### 安装步骤
 
-1. Clone the repository
-2. Create a `.env` file with required variables:
+1. 克隆仓库
+2. 创建 `.env` 文件并配置必填变量：
 
 ```env
 EDIT_USER=myuser
@@ -57,45 +57,45 @@ REDIS_URL=redis://localhost:6379
 SESSION_SECRET=your-super-secret-key-here
 ```
 
-3. Install dependencies:
+3. 安装依赖：
 
 ```bash
 cd web-text-board
 pip install -r requirements.txt
 ```
 
-4. Run the development server:
+4. 启动开发服务器：
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-5. Open http://localhost:8000 in your browser
+5. 在浏览器中打开 http://localhost:8000
 
-## Running Tests
+## 运行测试
 
-### Prerequisites
+### 前置要求
 
-- Redis server running
-- Test Redis database (uses DB 15 by default for isolation)
+- Redis 服务运行中
+- 测试 Redis 数据库（默认使用 DB 15 进行隔离）
 
-### Run Tests
+### 运行测试
 
 ```bash
 cd web-text-board
 pytest -v
 ```
 
-## Docker
+## Docker 部署
 
-### Build Image
+### 构建镜像
 
 ```bash
 cd web-text-board
 docker build -t web-text-board .
 ```
 
-### Run Container
+### 运行容器
 
 ```bash
 docker run -d \
@@ -108,74 +108,74 @@ docker run -d \
   web-text-board
 ```
 
-## Zeabur Deployment
+## Zeabur 部署
 
-Zeabur supports Docker container deployment with Redis.
+Zeabur 支持 Docker 容器部署，可使用其 Redis 服务。
 
-### Steps
+### 部署步骤
 
-1. Push your code to GitHub
-2. Connect your repository to Zeabur
-3. Add environment variables in Zeabur dashboard:
+1. 将代码推送到 GitHub
+2. 连接仓库到 Zeabur
+3. 在 Zeabur 面板中添加环境变量：
    - `EDIT_USER`
    - `EDIT_PASSWORD`
-   - `REDIS_URL` (use Zeabur's Redis service binding)
-   - `SESSION_SECRET` (generate a secure random string)
-4. Deploy
+   - `REDIS_URL`（使用 Zeabur 的 Redis 服务绑定）
+   - `SESSION_SECRET`（生成随机字符串）
+4. 部署
 
-### Zeabur Redis Requirement
+### Zeabur Redis 要求
 
-Zeabur provides Redis as a service binding. Use the provided `REDIS_URL` environment variable from the Redis service.
+Zeabur 提供 Redis 作为服务绑定，使用 Redis 服务中提供的 `REDIS_URL` 环境变量。
 
-## API Endpoints
+## API 接口
 
-### Pages
+### 页面路由
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Redirect to `/editor` or `/login` |
-| `/login` | GET | Render login page |
-| `/login` | POST | Handle login submission |
-| `/editor` | GET | Render editor page (requires auth) |
+| 路径 | 方法 | 描述 |
+|------|------|------|
+| `/` | GET | 重定向到 `/editor` 或 `/login` |
+| `/login` | GET | 渲染登录页面 |
+| `/login` | POST | 处理登录提交 |
+| `/editor` | GET | 渲染编辑器页面（需认证） |
 
-### API
+### API 路由
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/document` | GET | Get current document content and font size |
-| `/api/save` | POST | Save document content and font size |
-| `/api/clear` | POST | Clear document (save empty) |
+| 路径 | 方法 | 描述 |
+|------|------|------|
+| `/api/document` | GET | 获取当前文档内容和字体大小 |
+| `/api/save` | POST | 保存文档内容和字体大小 |
+| `/api/clear` | POST | 清空文档（保存空内容） |
 
-### API Examples
+### API 示例
 
 ```bash
-# Get document
+# 获取文档
 curl -b "session=YOUR_SESSION_TOKEN" http://localhost:8000/api/document
 
-# Save document
+# 保存文档
 curl -b "session=YOUR_SESSION_TOKEN" -X POST \
   -H "Content-Type: application/json" \
   -d '{"content": "Hello world", "font_size_px": 18}' \
   http://localhost:8000/api/save
 
-# Clear document
+# 清空文档
 curl -b "session=YOUR_SESSION_TOKEN" -X POST \
   -H "Content-Type: application/json" \
   -d '{"font_size_px": 18}' \
   http://localhost:8000/api/clear
 ```
 
-## Project Structure
+## 项目结构
 
 ```
 web-text-board/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py          # FastAPI application
-│   ├── config.py        # Configuration & env vars
-│   ├── auth.py          # Authentication helpers
-│   ├── redis_store.py   # Redis operations
-│   ├── schemas.py       # Pydantic models
+│   ├── main.py          # FastAPI 应用
+│   ├── config.py        # 配置和环境变量
+│   ├── auth.py          # 认证工具
+│   ├── redis_store.py   # Redis 操作
+│   ├── schemas.py       # Pydantic 模型
 │   ├── templates/
 │   │   ├── login.html
 │   │   └── editor.html
@@ -194,6 +194,6 @@ web-text-board/
 └── README.md
 ```
 
-## License
+## 许可证
 
 MIT
