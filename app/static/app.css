@@ -6,20 +6,29 @@
 
 html, body {
     height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f5f5f5;
     overflow: hidden;
 }
 
-.editor-container {
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 全屏容器，无scroll */
+.editor-view {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for mobile */
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
-    padding-bottom: 0;
+    height: 100dvh;
+}
+
+/* input subview，可scroll */
+.input-view {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
 }
 
 #editor {
@@ -27,7 +36,6 @@ html, body {
     width: 100%;
     padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 8px 8px 0 0;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
     font-size: 18px;
     line-height: 1.6;
@@ -36,6 +44,7 @@ html, body {
     color: #333;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 #editor:focus {
@@ -47,21 +56,29 @@ html, body {
     color: #999;
 }
 
-/* Prevent text zoom on double-tap for mobile */
 #editor {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-autocorrect: off;
+    -webkit-spell-check: none;
     touch-action: manipulation;
     -webkit-text-size-adjust: 100%;
+}
+
+/* 按钮subview，固定在底部 */
+.button-view {
+    flex-shrink: 0;
+    padding: 0.5rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
 }
 
 .toolbar {
     display: flex;
     gap: 0.5rem;
-    padding: 0.5rem;
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
-    background: white;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    flex-shrink: 0;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .toolbar button {
@@ -74,17 +91,11 @@ html, body {
     font-weight: 500;
     color: #333;
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
     -webkit-tap-highlight-color: transparent;
 }
 
-.toolbar button:hover {
-    background: #f5f5f5;
-    border-color: #ccc;
-}
-
 .toolbar button:active {
-    background: #eee;
+    background: #f0f0f0;
 }
 
 #btn-save {
@@ -93,48 +104,6 @@ html, body {
     border-color: #007bff;
 }
 
-#btn-save:hover {
+#btn-save:active {
     background: #0056b3;
-    border-color: #0056b3;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 480px) {
-    .editor-container {
-        padding: 0.5rem;
-        padding-bottom: 0;
-    }
-
-    .toolbar {
-        gap: 0.25rem;
-        padding: 0.375rem;
-        padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
-    }
-
-    .toolbar button {
-        padding: 0.625rem 0.5rem;
-        font-size: 0.875rem;
-    }
-}
-
-/* Disable iOS auto-correct features */
-#editor::-webkit-input-placeholder {
-    color: #999;
-}
-
-/* Prevent selection styling */
-#editor {
-    -webkit-user-select: text;
-    user-select: text;
-}
-
-/* Prevent auto-formatting */
-#editor {
-    -webkit-autocorrect: off;
-    -webkit-spell-check: none;
-}
-
-/* Ensure textarea scrolls internally on all devices */
-#editor {
-    overscroll-behavior: contain;
 }

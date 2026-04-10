@@ -7,27 +7,30 @@
     <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
-    <div class="editor-container">
-        <textarea
-            id="editor"
-            spellcheck="false"
-            autocorrect="off"
-            autocapitalize="off"
-            autocomplete="off"
-            placeholder="Paste your text here..."
-        >{{ content }}</textarea>
+    <div class="editor-view">
+        <div class="input-view">
+            <textarea
+                id="editor"
+                spellcheck="false"
+                autocorrect="off"
+                autocapitalize="off"
+                autocomplete="off"
+                placeholder="Paste your text here..."
+            >{{ content }}</textarea>
+        </div>
 
-        <div class="toolbar">
-            <button id="btn-clear" type="button">Clear</button>
-            <button id="btn-a-minus" type="button">A-</button>
-            <button id="btn-a-plus" type="button">A+</button>
-            <button id="btn-save" type="button">Save</button>
+        <div class="button-view">
+            <div class="toolbar">
+                <button id="btn-clear" type="button">Clear</button>
+                <button id="btn-a-minus" type="button">A-</button>
+                <button id="btn-a-plus" type="button">A+</button>
+                <button id="btn-save" type="button">Save</button>
+            </div>
         </div>
     </div>
 
     <script src="/static/app.js"></script>
     <script>
-        // Initialize with saved font size
         const initialFontSize = {{ font_size_px }};
         initEditor(initialFontSize);
     </script>
