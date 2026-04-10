@@ -23,6 +23,8 @@ def get_redis_client() -> redis.Redis:
             REDIS_URL,
             decode_responses=True,
             max_connections=10,
+            socket_timeout=3,
+            socket_connect_timeout=3,
         )
     return _redis_client
 

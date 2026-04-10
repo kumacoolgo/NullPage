@@ -3,13 +3,13 @@ from datetime import datetime, timedelta, timezone
 
 from itsdangerous import URLSafeTimedSerializer
 
-from .config import EDIT_PASSWORD, EDIT_USER, SESSION_LIFETIME_DAYS, SESSION_SECRET
+from .config import EDIT_PASSWORD, EDIT_USER, ENABLE_IP_BIND, SESSION_LIFETIME_DAYS, SESSION_SECRET
 
 serializer = URLSafeTimedSerializer(SESSION_SECRET)
 
 
 def create_session_token(ip: str) -> str:
-    """Create a signed session token bound to IP."""
+    """Create a signed session token."""
     data = {
         "authenticated": True,
         "user": EDIT_USER,
@@ -20,14 +20,14 @@ def create_session_token(ip: str) -> str:
 
 
 def verify_session_token(token: str, ip: str) -> bool:
-    """Verify session token is valid, not expired, and IP matches."""
+    """Verify session token is valid, not expired, and IP matches (if enabled)."""
     try:
         data = serializer.loads(token, max_age=SESSION_LIFETIME_DAYS * 86400)
 
         if data.get("authenticated") is not True:
             return False
 
-        if data.get("ip") != ip:
+        if ENABLE_IP_BIND and data.get("ip") != ip:
             return False
 
         exp = datetime.fromisoformat(data["exp"])

@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .auth import create_session_token, validate_credentials, verify_session_token
-from .redis_store import get_redis_client
+from .redis_store import get_document, get_redis_client, save_document
 from .schemas import ClearRequest, DocumentResponse, OkResponse, SaveRequest
 
 app = FastAPI()
@@ -69,6 +69,9 @@ async def login(request: Request, response: Response, username: str = Form(...),
         )
 
     if validate_credentials(username, password):
+        # Clear rate limit on success
+        client.delete(LOGIN_RATE_LIMIT_KEY.format(ip=ip))
+
         token = create_session_token(ip)
         response = RedirectResponse(url="/editor", status_code=302)
         response.set_cookie(
@@ -163,4 +166,4 @@ async def health():
         client.ping()
         return {"status": "ok"}
     except Exception:
-        return Response(status_code=500, content="{}")
+        return {"status": "error"}

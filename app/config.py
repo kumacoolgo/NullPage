@@ -17,10 +17,11 @@ REDIS_URL = get_required("REDIS_URL")
 SESSION_SECRET = get_required("SESSION_SECRET")
 
 # Optional config with defaults
-SESSION_LIFETIME_DAYS = 7
-DEFAULT_FONT_SIZE_PX = 18
-MIN_FONT_SIZE_PX = 12
-MAX_FONT_SIZE_PX = 40
+SESSION_LIFETIME_DAYS = int(os.getenv("SESSION_LIFETIME_DAYS", "7"))
+DEFAULT_FONT_SIZE_PX = int(os.getenv("DEFAULT_FONT_SIZE_PX", "18"))
+MIN_FONT_SIZE_PX = int(os.getenv("MIN_FONT_SIZE_PX", "12"))
+MAX_FONT_SIZE_PX = int(os.getenv("MAX_FONT_SIZE_PX", "40"))
+ENABLE_IP_BIND = os.getenv("ENABLE_IP_BIND", "false").lower() == "true"
 
 # Redis key prefixes
 REDIS_DOCUMENT_KEY = "textboard:document"
