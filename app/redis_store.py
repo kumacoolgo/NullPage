@@ -31,7 +31,6 @@ def get_document(client: redis.Redis) -> tuple[str, int]:
 
 def save_document(client: redis.Redis, content: str, font_size_px: int) -> None:
     """Save document content and font size to Redis."""
-    # Clamp font size to allowed range
     font_size = max(MIN_FONT_SIZE_PX, min(MAX_FONT_SIZE_PX, font_size_px))
 
     pipe = client.pipeline()
@@ -43,8 +42,3 @@ def save_document(client: redis.Redis, content: str, font_size_px: int) -> None:
         "font_size_px": font_size,
     })
     pipe.execute()
-
-
-def clear_document(client: redis.Redis) -> None:
-    """Clear document (save empty content immediately)."""
-    save_document(client, "", DEFAULT_FONT_SIZE_PX)

@@ -5,7 +5,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .auth import create_session_token, validate_credentials, verify_session_token
-from .config import DEFAULT_FONT_SIZE_PX
 from .redis_store import clear_document, get_document, get_redis_client, save_document
 from .schemas import ClearRequest, DocumentResponse, OkResponse, SaveRequest
 
@@ -15,10 +14,13 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
+# Redis connection reuse
+_redis_client = get_redis_client()
+
 
 def get_redis():
-    """Get Redis client."""
-    return get_redis_client()
+    """Get Redis client (reused connection)."""
+    return _redis_client
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -26,10 +28,13 @@ def get_redis():
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-@app.get("/", response_class=RedirectResponse)
-async def root():
+@app.get("/")
+async def root(request: Request):
     """Redirect to editor if authenticated, otherwise to login."""
-    return "/editor"
+    token = request.cookies.get("session")
+    if token and verify_session_token(token):
+        return RedirectResponse(url="/editor")
+    return RedirectResponse(url="/login")
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -49,7 +54,7 @@ async def login(request: Request, response: Response, username: str = Form(...),
             value=token,
             httponly=True,
             samesite="lax",
-            max_age=7 * 24 * 60 * 60,  # 7 days
+            max_age=7 * 24 * 60 * 60,
         )
         return response
     return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
@@ -107,10 +112,10 @@ async def save_doc(request: Request, data: SaveRequest):
 
 @app.post("/api/clear", response_model=OkResponse)
 async def clear_doc(request: Request, data: ClearRequest):
-    """Clear document (save empty content immediately)."""
+    """Clear document (save empty content with current font size)."""
     if not require_auth(request):
         return Response(status_code=401)
 
     client = get_redis()
-    clear_document(client)
+    save_document(client, "", data.font_size_px)
     return OkResponse()

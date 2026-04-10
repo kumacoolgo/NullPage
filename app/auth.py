@@ -23,7 +23,13 @@ def verify_session_token(token: str) -> bool:
     """Verify session token is valid and not expired."""
     try:
         data = serializer.loads(token, max_age=SESSION_LIFETIME_DAYS * 24 * 60 * 60)
-        return data.get("authenticated", False) is True
+        if data.get("authenticated", False) is not True:
+            return False
+        # Explicitly check expiration
+        exp = datetime.fromisoformat(data["exp"])
+        if datetime.now(timezone.utc) > exp:
+            return False
+        return True
     except Exception:
         return False
 
