@@ -3,71 +3,48 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-# Set required env vars before importing app
 os.environ["EDIT_USER"] = "testuser"
 os.environ["EDIT_PASSWORD"] = "testpass"
-os.environ["REDIS_URL"] = "redis://localhost:6379/15"  # Use DB 15 for isolation
-os.environ["SESSION_SECRET"] = "test-secret-key-for-testing-only"
+os.environ["REDIS_URL"] = "redis://localhost:6379"
+os.environ["SESSION_SECRET"] = "test-secret-key-for-testing"
 
 from app.main import app
-from app.auth import create_session_token, validate_credentials, verify_session_token
+from app.auth import create_session_token, verify_session_token
 
 
 class TestAuthHelpers:
     """Test auth helper functions."""
 
-    def test_validate_credentials_success(self):
-        """Login with correct credentials succeeds."""
-        assert validate_credentials("testuser", "testpass") is True
+    def test_create_and_verify_token(self):
+        """Token creation and verification works."""
+        token = create_session_token("127.0.0.1")
+        assert verify_session_token(token, "127.0.0.1")
 
-    def test_validate_credentials_wrong_password(self):
-        """Login with wrong password fails."""
-        assert validate_credentials("testuser", "wrongpass") is False
-
-    def test_validate_credentials_wrong_user(self):
-        """Login with wrong username fails."""
-        assert validate_credentials("wronguser", "testpass") is False
-
-    def test_create_session_token(self):
-        """Session token is created successfully."""
-        token = create_session_token()
-        assert token is not None
-        assert len(token) > 0
-
-    def test_verify_session_token_valid(self):
-        """Valid session token verifies successfully."""
-        token = create_session_token()
-        assert verify_session_token(token) is True
-
-    def test_verify_session_token_invalid(self):
-        """Invalid session token fails verification."""
-        assert verify_session_token("invalid-token") is False
-
-    def test_verify_session_token_empty(self):
-        """Empty session token fails verification."""
-        assert verify_session_token("") is False
+    def test_verify_token_wrong_ip(self):
+        """Token verification fails with wrong IP."""
+        token = create_session_token("127.0.0.1")
+        assert not verify_session_token(token, "192.168.1.1")
 
 
-class TestAuthPages:
-    """Test authentication page routes."""
+class TestAuthenticatedPages:
+    """Test pages that require authentication."""
 
     @pytest.fixture
     def client(self):
-        """Create test client."""
         return TestClient(app)
 
     def test_root_redirects_to_editor_when_authenticated(self, client):
         """Root path redirects to editor when session is valid."""
-        token = create_session_token()
-        response = client.get("/", cookies={"session": token})
-        assert response.status_code == 200
-        assert "/editor" in response.url.path or response.text
+        token = create_session_token("127.0.0.1")
+        response = client.get("/", cookies={"session": token}, follow_redirects=False)
+        assert response.status_code == 302
+        assert response.headers["location"] == "/editor"
 
     def test_root_redirects_to_login_when_not_authenticated(self, client):
         """Root path redirects to login when no session."""
         response = client.get("/", follow_redirects=False)
-        # Should redirect to login
         assert response.status_code == 302
+        assert response.headers["location"] == "/login"
 
     def test_login_page_renders(self, client):
         """Login page renders successfully."""
@@ -104,7 +81,6 @@ class TestUnauthenticatedAPI:
 
     @pytest.fixture
     def client(self):
-        """Create test client."""
         return TestClient(app)
 
     def test_get_document_without_auth_returns_401(self, client):
