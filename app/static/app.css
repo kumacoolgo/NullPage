@@ -8,15 +8,18 @@ html, body {
     height: 100%;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: #f5f5f5;
+    overflow: hidden;
 }
 
 .editor-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
     max-width: 800px;
     margin: 0 auto;
     padding: 1rem;
+    padding-bottom: 0;
 }
 
 #editor {
@@ -24,13 +27,15 @@ html, body {
     width: 100%;
     padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 8px 8px 0 0;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
     font-size: 18px;
     line-height: 1.6;
     resize: none;
     background: white;
     color: #333;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 #editor:focus {
@@ -51,11 +56,12 @@ html, body {
 .toolbar {
     display: flex;
     gap: 0.5rem;
-    margin-top: 1rem;
     padding: 0.5rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
     background: white;
-    border-radius: 8px;
+    border-radius: 0 0 8px 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;
 }
 
 .toolbar button {
@@ -96,11 +102,13 @@ html, body {
 @media (max-width: 480px) {
     .editor-container {
         padding: 0.5rem;
+        padding-bottom: 0;
     }
 
     .toolbar {
         gap: 0.25rem;
         padding: 0.375rem;
+        padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
     }
 
     .toolbar button {
@@ -124,4 +132,9 @@ html, body {
 #editor {
     -webkit-autocorrect: off;
     -webkit-spell-check: none;
+}
+
+/* Ensure textarea scrolls internally on all devices */
+#editor {
+    overscroll-behavior: contain;
 }
