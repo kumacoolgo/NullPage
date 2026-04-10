@@ -12,10 +12,19 @@ from .config import (
     REDIS_URL,
 )
 
+_redis_client = None
+
 
 def get_redis_client() -> redis.Redis:
-    """Get Redis client from URL."""
-    return redis.from_url(REDIS_URL, decode_responses=True)
+    """Get Redis client with connection pool (singleton)."""
+    global _redis_client
+    if _redis_client is None:
+        _redis_client = redis.from_url(
+            REDIS_URL,
+            decode_responses=True,
+            max_connections=10,
+        )
+    return _redis_client
 
 
 def get_document(client: redis.Redis) -> tuple[str, int]:

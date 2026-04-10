@@ -5,30 +5,35 @@ from itsdangerous import URLSafeTimedSerializer
 
 from .config import EDIT_PASSWORD, EDIT_USER, SESSION_LIFETIME_DAYS, SESSION_SECRET
 
-# Create serializer for signed cookies
 serializer = URLSafeTimedSerializer(SESSION_SECRET)
 
 
-def create_session_token() -> str:
-    """Create a signed session token valid for SESSION_LIFETIME_DAYS."""
+def create_session_token(ip: str) -> str:
+    """Create a signed session token bound to IP."""
     data = {
         "authenticated": True,
         "user": EDIT_USER,
+        "ip": ip,
         "exp": (datetime.now(timezone.utc) + timedelta(days=SESSION_LIFETIME_DAYS)).isoformat(),
     }
     return serializer.dumps(data)
 
 
-def verify_session_token(token: str) -> bool:
-    """Verify session token is valid and not expired."""
+def verify_session_token(token: str, ip: str) -> bool:
+    """Verify session token is valid, not expired, and IP matches."""
     try:
-        data = serializer.loads(token, max_age=SESSION_LIFETIME_DAYS * 24 * 60 * 60)
-        if data.get("authenticated", False) is not True:
+        data = serializer.loads(token, max_age=SESSION_LIFETIME_DAYS * 86400)
+
+        if data.get("authenticated") is not True:
             return False
-        # Explicitly check expiration
+
+        if data.get("ip") != ip:
+            return False
+
         exp = datetime.fromisoformat(data["exp"])
         if datetime.now(timezone.utc) > exp:
             return False
+
         return True
     except Exception:
         return False
